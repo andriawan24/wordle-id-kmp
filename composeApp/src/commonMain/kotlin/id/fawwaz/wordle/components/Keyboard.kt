@@ -17,8 +17,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.fawwaz.wordle.theme.WordleTheme
+import id.fawwaz.wordle.utils.RevealType
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val Chars = listOf(
@@ -38,7 +40,7 @@ private val Chars = listOf(
 fun Keyboard(
     modifier: Modifier = Modifier,
     guessWord: String,
-    selectedValues: SnapshotStateList<String>,
+    selectedValues: List<String>,
     onCharClicked: (String) -> Unit,
     onDeleteClicked: () -> Unit,
     onEnterClicked: () -> Unit
@@ -72,7 +74,7 @@ fun KeyboardItem(
     modifier: Modifier = Modifier,
     char: String,
     guessWord: String,
-    selectedValues: SnapshotStateList<String>,
+    selectedValues: List<String>,
     onCharClicked: (char: String) -> Unit
 ) {
     val backgroundCard by animateColorAsState(
@@ -88,7 +90,7 @@ fun KeyboardItem(
         modifier = modifier
             .width(30.dp)
             .clickable { onCharClicked(char) }
-            .background(color = backgroundCard, shape = MaterialTheme.shapes.medium)
+            .background(color = backgroundCard, shape = MaterialTheme.shapes.small)
             .padding(vertical = 8.dp)
     ) {
         Text(
@@ -107,7 +109,7 @@ fun KeyboardItemEnter(modifier: Modifier = Modifier, onEnterClicked: () -> Unit)
     Box(
         modifier = modifier
             .clickable { onEnterClicked() }
-            .background(Color(0xFFED8FB3), shape = MaterialTheme.shapes.medium)
+            .background(Color(0xFFED8FB3), shape = MaterialTheme.shapes.small)
             .padding(vertical = 8.dp, horizontal = 12.dp)
     ) {
         Text(
@@ -128,7 +130,7 @@ fun KeyboardItemDelete(modifier: Modifier = Modifier, onDeleteClicked: () -> Uni
             .clickable { onDeleteClicked() }
             .background(
                 color = Color(0xFFED8FB3),
-                shape = MaterialTheme.shapes.medium
+                shape = MaterialTheme.shapes.small
             )
             .padding(vertical = 8.dp, horizontal = 8.dp)
     ) {

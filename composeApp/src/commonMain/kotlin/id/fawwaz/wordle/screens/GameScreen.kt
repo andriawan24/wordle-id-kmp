@@ -10,128 +10,45 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import id.fawwaz.wordle.components.GameTitle
 import id.fawwaz.wordle.components.Keyboard
 import id.fawwaz.wordle.components.WordTile
 import id.fawwaz.wordle.utils.RevealType
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import id.fawwaz.wordle.viewmodels.GameEvent
+import id.fawwaz.wordle.viewmodels.GameViewModel
 
 @Composable
 fun GameScreen() {
-    val scope = rememberCoroutineScope()
-
-    var currentColumnIndex by remember { mutableStateOf(0) }
-    var currentRowIndex by remember { mutableStateOf(0) }
-    val guessWord by remember { mutableStateOf("LEMON") }
-    val selectedValues = remember { mutableStateListOf<String>() }
-    var values = remember {
-        mutableStateListOf(
-            mutableStateListOf("", "", "", "", ""),
-            mutableStateListOf("", "", "", "", ""),
-            mutableStateListOf("", "", "", "", ""),
-            mutableStateListOf("", "", "", "", ""),
-            mutableStateListOf("", "", "", "", "")
-        )
-    }
-    var statuses = remember {
-        mutableStateListOf(
-            mutableStateListOf(
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN
-            ),
-            mutableStateListOf(
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN
-            ),
-            mutableStateListOf(
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN
-            ),
-            mutableStateListOf(
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN
-            ),
-            mutableStateListOf(
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN
-            )
-        )
-    }
+    val gameViewModel: GameViewModel = viewModel()
+    val state by gameViewModel.state.collectAsStateWithLifecycle()
+    val tileStatuses by gameViewModel.statuses.collectAsStateWithLifecycle()
+    val values by gameViewModel.values.collectAsStateWithLifecycle()
 
     GameContent(
-        guessWord = guessWord,
+        guessWord = state.guessWord,
         values = values,
-        selectedValues = selectedValues,
-        statuses = statuses,
-        onCharClicked = {
-            val currentCols = values[currentColumnIndex]
-            val currentRow = values[currentColumnIndex][currentRowIndex]
-
-            currentCols[currentRowIndex] = if (currentRow.isBlank()) it else currentRow
-            currentRowIndex = (currentRowIndex + 1).coerceAtMost(values.lastIndex)
-        },
-        onDeleteClicked = {
-            val currentCols = values[currentColumnIndex]
-            val currentRow = values[currentColumnIndex][currentRowIndex]
-
-            if (currentRowIndex == values.lastIndex && currentRow.isNotBlank()) {
-                currentCols[currentRowIndex] = ""
-            } else {
-                currentRowIndex = (currentRowIndex - 1).coerceAtLeast(0)
-                currentCols[currentRowIndex] = ""
-            }
-        },
-        onEnterClicked = {
-            scope.launch {
-                values[currentColumnIndex].forEachIndexed { index, answerCh ->
-                    statuses[currentColumnIndex][index] = when (answerCh) {
-                        guessWord[index].toString() -> RevealType.GREEN
-                        in guessWord -> RevealType.YELLOW
-                        else -> RevealType.GRAY
-                    }
-                    selectedValues.add(answerCh)
-                    delay(1000)
-                }
-                currentColumnIndex = (currentColumnIndex + 1).coerceAtMost(values.lastIndex)
-                currentRowIndex = 0
-            }
-        }
+        selectedValues = state.selectedValues,
+        statuses = tileStatuses,
+        onCharClicked = { gameViewModel.onEvent(GameEvent.OnCharClicked(it)) },
+        onDeleteClicked = { gameViewModel.onEvent(GameEvent.OnDeleteClicked) },
+        onEnterClicked = { gameViewModel.onEvent(GameEvent.OnEnterClicked) }
     )
 }
 
 @Composable
 fun GameContent(
     guessWord: String,
-    selectedValues: SnapshotStateList<String>,
+    selectedValues: List<String>,
     values: SnapshotStateList<SnapshotStateList<String>>,
     onCharClicked: (String) -> Unit,
     onDeleteClicked: () -> Unit,
     onEnterClicked: () -> Unit,
-    statuses: List<List<RevealType>>
+    statuses: SnapshotStateList<SnapshotStateList<RevealType>>
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         GameTitle()
