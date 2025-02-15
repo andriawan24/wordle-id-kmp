@@ -27,45 +27,7 @@ class GameViewModel : ViewModel() {
     private val _state = MutableStateFlow(GameState())
     val state = _state.asStateFlow()
 
-    private val _statuses = MutableStateFlow(
-        mutableStateListOf(
-            mutableStateListOf(
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN
-            ),
-            mutableStateListOf(
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN
-            ),
-            mutableStateListOf(
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN
-            ),
-            mutableStateListOf(
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN
-            ),
-            mutableStateListOf(
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN,
-                RevealType.HIDDEN
-            )
-        )
-    )
+    private val _statuses = MutableStateFlow(resetStatuses())
     val statuses = _statuses.asStateFlow()
 
     private val _values = MutableStateFlow(
@@ -91,7 +53,9 @@ class GameViewModel : ViewModel() {
             is GameEvent.OnCharClicked -> {
                 currentCols[currentRowIndex] = if (currentRow.isBlank()) event.char else currentRow
                 _state.update {
-                    it.copy(currentRowIndex = (currentRowIndex + 1).coerceAtMost(values.lastIndex))
+                    it.copy(
+                        currentRowIndex = (currentRowIndex + 1).coerceAtMost(values.lastIndex)
+                    )
                 }
             }
 
@@ -99,10 +63,9 @@ class GameViewModel : ViewModel() {
                 if (currentRowIndex == values.lastIndex && currentRow.isNotBlank()) {
                     currentCols[currentRowIndex] = ""
                 } else {
-                    _state.update {
-                        it.copy(currentRowIndex = (currentRowIndex - 1).coerceAtLeast(0))
-                    }
-                    currentCols[currentRowIndex] = ""
+                    val newRowIndex = (currentRowIndex - 1).coerceAtLeast(0)
+                    _state.update { it.copy(currentRowIndex = newRowIndex) }
+                    currentCols[newRowIndex] = ""
                 }
             }
 
@@ -114,11 +77,7 @@ class GameViewModel : ViewModel() {
                             in state.value.guessWord -> RevealType.YELLOW
                             else -> RevealType.GRAY
                         }
-                        _state.update {
-                            it.copy(
-                                selectedValues = it.selectedValues + answerCh
-                            )
-                        }
+                        _state.update { it.copy(selectedValues = it.selectedValues + answerCh) }
                         delay(300)
                     }
 
@@ -132,4 +91,42 @@ class GameViewModel : ViewModel() {
             }
         }
     }
+
+    private fun resetStatuses() = mutableStateListOf(
+        mutableStateListOf(
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN
+        ),
+        mutableStateListOf(
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN
+        ),
+        mutableStateListOf(
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN
+        ),
+        mutableStateListOf(
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN
+        ),
+        mutableStateListOf(
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN,
+            RevealType.HIDDEN
+        )
+    )
 }

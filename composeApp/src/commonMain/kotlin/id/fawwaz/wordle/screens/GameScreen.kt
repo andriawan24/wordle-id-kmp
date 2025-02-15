@@ -24,7 +24,7 @@ import id.fawwaz.wordle.viewmodels.GameViewModel
 
 @Composable
 fun GameScreen() {
-    val gameViewModel: GameViewModel = viewModel()
+    val gameViewModel: GameViewModel = viewModel { GameViewModel() }
     val state by gameViewModel.state.collectAsStateWithLifecycle()
     val tileStatuses by gameViewModel.statuses.collectAsStateWithLifecycle()
     val values by gameViewModel.values.collectAsStateWithLifecycle()
