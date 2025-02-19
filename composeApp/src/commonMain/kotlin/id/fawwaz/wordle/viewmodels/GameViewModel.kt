@@ -13,6 +13,7 @@ import kotlinx.coroutines.launch
 data class GameState(
     val currentColumnIndex: Int = 0,
     val currentRowIndex: Int = 0,
+    val isError: Boolean = false,
     val guessWord: String = "LEMON",
     val selectedValues: List<String> = emptyList(),
 )
@@ -21,6 +22,7 @@ sealed class GameEvent() {
     data class OnCharClicked(val char: String) : GameEvent()
     object OnDeleteClicked : GameEvent()
     object OnEnterClicked : GameEvent()
+    object OnErrorEnded : GameEvent()
 }
 
 class GameViewModel : ViewModel() {
@@ -71,23 +73,33 @@ class GameViewModel : ViewModel() {
 
             GameEvent.OnEnterClicked -> {
                 viewModelScope.launch {
-                    values[currentColIndex].forEachIndexed { index, answerCh ->
-                        statuses.value[currentColIndex][index] = when (answerCh) {
-                            state.value.guessWord[index].toString() -> RevealType.GREEN
-                            in state.value.guessWord -> RevealType.YELLOW
-                            else -> RevealType.GRAY
+                    val isValid = currentCols.all { it.isNotBlank() }
+                    if (isValid) {
+                        values[currentColIndex].forEachIndexed { index, answerCh ->
+                            statuses.value[currentColIndex][index] = when (answerCh) {
+                                state.value.guessWord[index].toString() -> RevealType.GREEN
+                                in state.value.guessWord -> RevealType.YELLOW
+                                else -> RevealType.GRAY
+                            }
+                            _state.update { it.copy(selectedValues = it.selectedValues + answerCh) }
+                            delay(300)
                         }
-                        _state.update { it.copy(selectedValues = it.selectedValues + answerCh) }
-                        delay(300)
                     }
 
                     _state.update {
                         it.copy(
-                            currentColumnIndex = (currentColIndex + 1).coerceAtMost(values.lastIndex),
-                            currentRowIndex = 0
+                            currentColumnIndex = if (isValid) (currentColIndex + 1).coerceAtMost(
+                                values.lastIndex
+                            ) else currentColIndex,
+                            currentRowIndex = if (isValid) 0 else currentRowIndex,
+                            isError = !isValid
                         )
                     }
                 }
+            }
+
+            GameEvent.OnErrorEnded -> _state.update {
+                it.copy(isError = false)
             }
         }
     }

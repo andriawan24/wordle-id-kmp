@@ -34,15 +34,19 @@ fun GameScreen() {
         values = values,
         selectedValues = state.selectedValues,
         statuses = tileStatuses,
+        isError = state.isError,
         onCharClicked = { gameViewModel.onEvent(GameEvent.OnCharClicked(it)) },
         onDeleteClicked = { gameViewModel.onEvent(GameEvent.OnDeleteClicked) },
-        onEnterClicked = { gameViewModel.onEvent(GameEvent.OnEnterClicked) }
+        onEnterClicked = { gameViewModel.onEvent(GameEvent.OnEnterClicked) },
+        onErrorEnded = { gameViewModel.onEvent(GameEvent.OnErrorEnded) }
     )
 }
 
 @Composable
 fun GameContent(
     guessWord: String,
+    isError: Boolean,
+    onErrorEnded: () -> Unit,
     selectedValues: List<String>,
     values: SnapshotStateList<SnapshotStateList<String>>,
     onCharClicked: (String) -> Unit,
@@ -67,7 +71,9 @@ fun GameContent(
                         WordTile(
                             modifier = Modifier.weight(1f),
                             value = word,
-                            reveal = statuses[colIdx][rowIdx]
+                            reveal = statuses[colIdx][rowIdx],
+                            isError = isError,
+                            isErrorEnded = onErrorEnded
                         )
                     }
                 }

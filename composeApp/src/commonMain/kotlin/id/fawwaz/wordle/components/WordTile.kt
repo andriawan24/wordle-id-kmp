@@ -1,17 +1,27 @@
 package id.fawwaz.wordle.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.repeatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,8 +39,12 @@ fun WordTile(
     modifier: Modifier = Modifier,
     value: String,
     reveal: RevealType,
-    textSize: TextUnit = 20.sp
+    textSize: TextUnit = 20.sp,
+    isError: Boolean = false,
+    isErrorEnded: () -> Unit
 ) {
+    var shouldShake by remember { mutableStateOf(false) }
+
     val backgroundCard by animateColorAsState(
         targetValue = when (reveal) {
             RevealType.HIDDEN -> MaterialTheme.colorScheme.cardBackgroundNeutral
@@ -41,8 +55,26 @@ fun WordTile(
         label = "Background Card Animated"
     )
 
+    val offsetX by animateFloatAsState(
+        targetValue = if (shouldShake) 10f else 0f,
+        animationSpec = repeatable(
+            iterations = 3, // Shake three times
+            animation = tween(durationMillis = 100, easing = LinearEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        finishedListener = { shouldShake = false } // Reset shake after animation
+    )
+
+    LaunchedEffect(isError) {
+        if (isError) {
+            shouldShake = true
+            isErrorEnded()
+        }
+    }
+
     Box(
         modifier = modifier
+            .offset(x = offsetX.dp)
             .background(
                 color = backgroundCard,
                 shape = MaterialTheme.shapes.small
@@ -69,12 +101,48 @@ private fun WordTilePreview() {
                 modifier = Modifier.padding(horizontal = 48.dp, vertical = 40.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
             ) {
-                WordTile(modifier = Modifier.weight(1f), value = "W", reveal = RevealType.HIDDEN)
-                WordTile(modifier = Modifier.weight(1f), value = "O", reveal = RevealType.GREEN)
-                WordTile(modifier = Modifier.weight(1f), value = "R", reveal = RevealType.YELLOW)
-                WordTile(modifier = Modifier.weight(1f), value = "D", reveal = RevealType.GRAY)
-                WordTile(modifier = Modifier.weight(1f), value = "L", reveal = RevealType.GRAY)
-                WordTile(modifier = Modifier.weight(1f), value = "E", reveal = RevealType.GRAY)
+                WordTile(
+                    modifier = Modifier.weight(1f),
+                    value = "W",
+                    isError = false,
+                    isErrorEnded = { },
+                    reveal = RevealType.HIDDEN
+                )
+                WordTile(
+                    modifier = Modifier.weight(1f),
+                    value = "O",
+                    isError = false,
+                    isErrorEnded = { },
+                    reveal = RevealType.GREEN
+                )
+                WordTile(
+                    modifier = Modifier.weight(1f),
+                    value = "R",
+                    isError = false,
+                    isErrorEnded = { },
+                    reveal = RevealType.YELLOW
+                )
+                WordTile(
+                    modifier = Modifier.weight(1f),
+                    value = "D",
+                    isError = false,
+                    isErrorEnded = { },
+                    reveal = RevealType.GRAY
+                )
+                WordTile(
+                    modifier = Modifier.weight(1f),
+                    value = "L",
+                    isError = false,
+                    isErrorEnded = { },
+                    reveal = RevealType.GRAY
+                )
+                WordTile(
+                    modifier = Modifier.weight(1f),
+                    value = "E",
+                    isError = false,
+                    isErrorEnded = { },
+                    reveal = RevealType.GRAY
+                )
             }
         }
     }

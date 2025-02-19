@@ -17,9 +17,7 @@ private const val Title = "WORDLE"
 
 @Composable
 fun GameTitle(modifier: Modifier = Modifier) {
-    val title by remember {
-        mutableStateOf(Title)
-    }
+    val title by remember { mutableStateOf(Title) }
 
     Row(
         modifier = modifier.padding(vertical = 24.dp, horizontal = 60.dp),
@@ -29,7 +27,9 @@ fun GameTitle(modifier: Modifier = Modifier) {
             WordTile(
                 modifier = Modifier.weight(1f),
                 value = it.toString(),
-                reveal = RevealType.HIDDEN
+                reveal = RevealType.HIDDEN,
+                isError = false,
+                isErrorEnded = {}
             )
         }
     }
