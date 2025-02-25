@@ -1,0 +1,114 @@
+openapi: 3.0.0
+info:
+  title: Word Service API
+  description: API for retrieving and managing words from a CSV source
+  version: 1.0.0
+servers:
+  - url: http://192.168.0.100:8080
+    description: Local development server
+paths:
+  /words:
+    get:
+      summary: Get all words
+      description: Fetch all words stored in the database
+      parameters:
+        - name: skip
+          description: Skip offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          description: Limit offset
+          required: false
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+  /words/search/{word}:
+    get:
+      summary: Search for a word
+      description: Search for a specific word in the database
+      parameters:
+        - name: word
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The word to search for
+      responses:
+        "200":
+          description: Word found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+        "404":
+          description: Word not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+  /words/random:
+    get:
+      summary: Get a random word
+      description: Fetch a random word from the database
+      responses:
+        "200":
+          description: Random word found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+        "404":
+          description: No words available
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+  /words/refresh:
+    get:
+      summary: Refresh words from CSV
+      description: Fetch words from a CSV file and update the database
+      responses:
+        "200":
+          description: Words updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+        "400":
+          description: Failed to update words
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BaseResponse"
+components:
+  schemas:
+    BaseResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          example: success
+        total:
+          type: integer
+          example: 10
+        message:
+          type: string
+          nullable: true
+          example: "Request completed successfully"
+        data:
+          type: array
+          nullable: true
+          items:
+            type: object
+            nullable: true
