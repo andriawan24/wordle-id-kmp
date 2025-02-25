@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
@@ -21,16 +22,21 @@ import id.fawwaz.wordle.components.WordTile
 import id.fawwaz.wordle.utils.RevealType
 import id.fawwaz.wordle.viewmodels.GameEvent
 import id.fawwaz.wordle.viewmodels.GameViewModel
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun GameScreen() {
-    val gameViewModel: GameViewModel = viewModel { GameViewModel() }
+    val gameViewModel: GameViewModel = koinViewModel()
     val state by gameViewModel.state.collectAsStateWithLifecycle()
     val tileStatuses by gameViewModel.statuses.collectAsStateWithLifecycle()
     val values by gameViewModel.values.collectAsStateWithLifecycle()
 
+    LaunchedEffect(true) {
+        gameViewModel.onEvent(GameEvent.OnStartGame)
+    }
+
     GameContent(
-        guessWord = state.guessWord,
+        guessWord = state.guessWord.id,
         values = values,
         selectedValues = state.selectedValues,
         statuses = tileStatuses,

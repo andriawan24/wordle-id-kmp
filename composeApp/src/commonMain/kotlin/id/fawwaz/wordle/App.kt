@@ -8,17 +8,18 @@ import androidx.compose.ui.Modifier
 import id.fawwaz.wordle.screens.GameScreen
 import id.fawwaz.wordle.theme.WordleTheme
 import id.fawwaz.wordle.theme.backgroundColor
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.KoinContext
 
 @Composable
-@Preview
 fun App() {
-    WordleTheme {
-        Surface(
-            modifier = Modifier.fillMaxSize(),
-            color = MaterialTheme.colorScheme.backgroundColor
-        ) {
-            GameScreen()
+    KoinContext {
+        WordleTheme {
+            Surface(
+                modifier = Modifier.fillMaxSize(),
+                color = MaterialTheme.colorScheme.backgroundColor
+            ) {
+                GameScreen()
+            }
         }
     }
 }
