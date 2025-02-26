@@ -5,7 +5,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import id.fawwaz.wordle.domain.models.KeywordModel
 import id.fawwaz.wordle.domain.usecases.WordleUseCase
-import id.fawwaz.wordle.utils.RevealType
+import id.fawwaz.wordle.utils.LetterStatus
+import id.fawwaz.wordle.viewmodels.models.GameEvent
+import id.fawwaz.wordle.viewmodels.models.GameState
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -13,22 +15,6 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
-data class GameState(
-    val currentColumnIndex: Int = 0,
-    val currentRowIndex: Int = 0,
-    val isError: Boolean = false,
-    val guessWord: KeywordModel = KeywordModel(),
-    val selectedValues: List<String> = emptyList(),
-)
-
-sealed class GameEvent() {
-    data class OnCharClicked(val char: String) : GameEvent()
-    object OnDeleteClicked : GameEvent()
-    object OnEnterClicked : GameEvent()
-    object OnErrorEnded : GameEvent()
-    object OnStartGame : GameEvent()
-}
 
 class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
     private val _state = MutableStateFlow(GameState())
@@ -106,9 +92,9 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
                     if (isValid) {
                         values[currentColIndex].forEachIndexed { index, answerCh ->
                             statuses.value[currentColIndex][index] = when (answerCh) {
-                                state.value.guessWord.id[index].toString() -> RevealType.GREEN
-                                in state.value.guessWord.id -> RevealType.YELLOW
-                                else -> RevealType.GRAY
+                                state.value.guessWord.id[index].toString() -> LetterStatus.CORRECT
+                                in state.value.guessWord.id -> LetterStatus.EXIST
+                                else -> LetterStatus.INCORRECT
                             }
                             _state.update { it.copy(selectedValues = it.selectedValues + answerCh) }
                             delay(300)
@@ -135,39 +121,39 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
 
     private fun resetStatuses() = mutableStateListOf(
         mutableStateListOf(
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT
         ),
         mutableStateListOf(
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT
         ),
         mutableStateListOf(
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT
         ),
         mutableStateListOf(
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT
         ),
         mutableStateListOf(
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN,
-            RevealType.HIDDEN
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT,
+            LetterStatus.DEFAULT
         )
     )
 }
