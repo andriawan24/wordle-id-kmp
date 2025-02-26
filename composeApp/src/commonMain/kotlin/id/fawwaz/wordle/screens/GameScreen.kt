@@ -15,11 +15,10 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import id.fawwaz.wordle.components.GameTitle
 import id.fawwaz.wordle.components.Keyboard
 import id.fawwaz.wordle.components.WordTile
-import id.fawwaz.wordle.utils.RevealType
+import id.fawwaz.wordle.utils.LetterStatus
 import id.fawwaz.wordle.viewmodels.GameEvent
 import id.fawwaz.wordle.viewmodels.GameViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -58,7 +57,7 @@ fun GameContent(
     onCharClicked: (String) -> Unit,
     onDeleteClicked: () -> Unit,
     onEnterClicked: () -> Unit,
-    statuses: SnapshotStateList<SnapshotStateList<RevealType>>
+    statuses: SnapshotStateList<SnapshotStateList<LetterStatus>>
 ) {
     Column(modifier = Modifier.fillMaxSize()) {
         GameTitle()

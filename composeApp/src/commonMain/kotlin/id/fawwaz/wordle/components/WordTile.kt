@@ -31,14 +31,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.fawwaz.wordle.theme.WordleTheme
 import id.fawwaz.wordle.theme.cardBackgroundNeutral
-import id.fawwaz.wordle.utils.RevealType
+import id.fawwaz.wordle.utils.LetterStatus
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable
 fun WordTile(
     modifier: Modifier = Modifier,
     value: String,
-    reveal: RevealType,
+    reveal: LetterStatus,
     textSize: TextUnit = 20.sp,
     isError: Boolean = false,
     isErrorEnded: () -> Unit
@@ -47,10 +47,10 @@ fun WordTile(
 
     val backgroundCard by animateColorAsState(
         targetValue = when (reveal) {
-            RevealType.HIDDEN -> MaterialTheme.colorScheme.cardBackgroundNeutral
-            RevealType.GRAY -> Color(0xFFF2EFE7)
-            RevealType.YELLOW -> Color(0xFFEDCCBA)
-            RevealType.GREEN -> Color(0xFFC0EEBD)
+            LetterStatus.DEFAULT -> MaterialTheme.colorScheme.cardBackgroundNeutral
+            LetterStatus.INCORRECT -> Color(0xFFF2EFE7)
+            LetterStatus.EXIST -> Color(0xFFEDCCBA)
+            LetterStatus.CORRECT -> Color(0xFFC0EEBD)
         },
         label = "Background Card Animated"
     )
@@ -106,42 +106,42 @@ private fun WordTilePreview() {
                     value = "W",
                     isError = false,
                     isErrorEnded = { },
-                    reveal = RevealType.HIDDEN
+                    reveal = LetterStatus.DEFAULT
                 )
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "O",
                     isError = false,
                     isErrorEnded = { },
-                    reveal = RevealType.GREEN
+                    reveal = LetterStatus.CORRECT
                 )
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "R",
                     isError = false,
                     isErrorEnded = { },
-                    reveal = RevealType.YELLOW
+                    reveal = LetterStatus.EXIST
                 )
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "D",
                     isError = false,
                     isErrorEnded = { },
-                    reveal = RevealType.GRAY
+                    reveal = LetterStatus.INCORRECT
                 )
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "L",
                     isError = false,
                     isErrorEnded = { },
-                    reveal = RevealType.GRAY
+                    reveal = LetterStatus.INCORRECT
                 )
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "E",
                     isError = false,
                     isErrorEnded = { },
-                    reveal = RevealType.GRAY
+                    reveal = LetterStatus.INCORRECT
                 )
             }
         }

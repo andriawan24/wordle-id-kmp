@@ -10,7 +10,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import id.fawwaz.wordle.theme.WordleTheme
-import id.fawwaz.wordle.utils.RevealType
+import id.fawwaz.wordle.utils.LetterStatus
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val Title = "WORDLE"
@@ -27,7 +27,7 @@ fun GameTitle(modifier: Modifier = Modifier) {
             WordTile(
                 modifier = Modifier.weight(1f),
                 value = it.toString(),
-                reveal = RevealType.HIDDEN,
+                reveal = LetterStatus.DEFAULT,
                 isError = false,
                 isErrorEnded = {}
             )
