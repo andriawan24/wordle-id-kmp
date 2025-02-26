@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,19 +26,17 @@ import org.koin.compose.viewmodel.koinViewModel
 fun GameScreen() {
     val gameViewModel: GameViewModel = koinViewModel()
     val state by gameViewModel.state.collectAsStateWithLifecycle()
-    val tileStatuses by gameViewModel.statuses.collectAsStateWithLifecycle()
-    val values by gameViewModel.values.collectAsStateWithLifecycle()
+    val tileStatuses by gameViewModel.letterStatuses.collectAsStateWithLifecycle()
+    val values by gameViewModel.answers.collectAsStateWithLifecycle()
 
     LaunchedEffect(true) {
         gameViewModel.onEvent(GameEvent.OnStartGame)
     }
 
     GameContent(
-        guessWord = state.guessWord.id,
-        values = values,
-        selectedValues = state.selectedValues,
+        answers = values,
         statuses = tileStatuses,
-        isError = state.isError,
+        isError = state.isShaking,
         onCharClicked = { gameViewModel.onEvent(GameEvent.OnCharClicked(it)) },
         onDeleteClicked = { gameViewModel.onEvent(GameEvent.OnDeleteClicked) },
         onEnterClicked = { gameViewModel.onEvent(GameEvent.OnEnterClicked) },
@@ -49,23 +46,24 @@ fun GameScreen() {
 
 @Composable
 fun GameContent(
-    guessWord: String,
     isError: Boolean,
     onErrorEnded: () -> Unit,
-    selectedValues: List<String>,
-    values: SnapshotStateList<SnapshotStateList<String>>,
+    answers: SnapshotStateList<SnapshotStateList<String>>,
     onCharClicked: (String) -> Unit,
     onDeleteClicked: () -> Unit,
     onEnterClicked: () -> Unit,
     statuses: SnapshotStateList<SnapshotStateList<LetterStatus>>
 ) {
-    Column(modifier = Modifier.fillMaxSize()) {
-        GameTitle()
-
-        Spacer(Modifier.height(24.dp))
+    Column(
+        modifier = Modifier.fillMaxSize().padding(vertical = 24.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        GameTitle(
+            modifier = Modifier.padding(horizontal = 60.dp).padding(bottom = 24.dp)
+        )
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-            values.forEachIndexed { colIdx, col ->
+            answers.forEachIndexed { colIdx, col ->
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -76,9 +74,9 @@ fun GameContent(
                         WordTile(
                             modifier = Modifier.weight(1f),
                             value = word,
-                            reveal = statuses[colIdx][rowIdx],
-                            isError = isError,
-                            isErrorEnded = onErrorEnded
+                            letterStatus = statuses[colIdx][rowIdx],
+                            isShaking = isError,
+                            onShakingEnded = onErrorEnded
                         )
                     }
                 }
@@ -88,13 +86,9 @@ fun GameContent(
         Spacer(Modifier.weight(1f))
 
         Keyboard(
-            guessWord = guessWord,
-            selectedValues = selectedValues,
             onCharClicked = onCharClicked,
             onDeleteClicked = onDeleteClicked,
             onEnterClicked = onEnterClicked
         )
-
-        Spacer(Modifier.height(24.dp))
     }
 }

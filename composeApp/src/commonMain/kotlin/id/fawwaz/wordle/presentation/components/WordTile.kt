@@ -24,7 +24,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
@@ -41,15 +40,15 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 fun WordTile(
     modifier: Modifier = Modifier,
     value: String,
-    reveal: LetterStatus,
+    letterStatus: LetterStatus,
     textSize: TextUnit = 20.sp,
-    isError: Boolean = false,
-    isErrorEnded: () -> Unit
+    isShaking: Boolean = false,
+    onShakingEnded: () -> Unit
 ) {
     var shouldShake by remember { mutableStateOf(false) }
 
     val backgroundCard by animateColorAsState(
-        targetValue = when (reveal) {
+        targetValue = when (letterStatus) {
             LetterStatus.DEFAULT -> MaterialTheme.colorScheme.cardBackgroundNeutral
             LetterStatus.INCORRECT -> MaterialTheme.colorScheme.incorrect
             LetterStatus.EXIST -> MaterialTheme.colorScheme.exists
@@ -68,10 +67,10 @@ fun WordTile(
         finishedListener = { shouldShake = false } // Reset shake after animation
     )
 
-    LaunchedEffect(isError) {
-        if (isError) {
+    LaunchedEffect(isShaking) {
+        if (isShaking) {
             shouldShake = true
-            isErrorEnded()
+            onShakingEnded()
         }
     }
 
@@ -107,44 +106,44 @@ private fun WordTilePreview() {
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "W",
-                    isError = false,
-                    isErrorEnded = { },
-                    reveal = LetterStatus.DEFAULT
+                    isShaking = false,
+                    onShakingEnded = { },
+                    letterStatus = LetterStatus.DEFAULT
                 )
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "O",
-                    isError = false,
-                    isErrorEnded = { },
-                    reveal = LetterStatus.CORRECT
+                    isShaking = false,
+                    onShakingEnded = { },
+                    letterStatus = LetterStatus.CORRECT
                 )
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "R",
-                    isError = false,
-                    isErrorEnded = { },
-                    reveal = LetterStatus.EXIST
+                    isShaking = false,
+                    onShakingEnded = { },
+                    letterStatus = LetterStatus.EXIST
                 )
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "D",
-                    isError = false,
-                    isErrorEnded = { },
-                    reveal = LetterStatus.INCORRECT
+                    isShaking = false,
+                    onShakingEnded = { },
+                    letterStatus = LetterStatus.INCORRECT
                 )
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "L",
-                    isError = false,
-                    isErrorEnded = { },
-                    reveal = LetterStatus.INCORRECT
+                    isShaking = false,
+                    onShakingEnded = { },
+                    letterStatus = LetterStatus.INCORRECT
                 )
                 WordTile(
                     modifier = Modifier.weight(1f),
                     value = "E",
-                    isError = false,
-                    isErrorEnded = { },
-                    reveal = LetterStatus.INCORRECT
+                    isShaking = false,
+                    onShakingEnded = { },
+                    letterStatus = LetterStatus.INCORRECT
                 )
             }
         }
