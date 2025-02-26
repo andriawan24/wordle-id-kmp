@@ -1,4 +1,4 @@
-package id.fawwaz.wordle.components
+package id.fawwaz.wordle.presentation.components
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row

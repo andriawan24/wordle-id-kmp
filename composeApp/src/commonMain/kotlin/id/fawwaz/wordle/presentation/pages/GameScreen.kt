@@ -1,4 +1,4 @@
-package id.fawwaz.wordle.screens
+package id.fawwaz.wordle.presentation.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,12 +15,12 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import id.fawwaz.wordle.components.GameTitle
-import id.fawwaz.wordle.components.Keyboard
-import id.fawwaz.wordle.components.WordTile
+import id.fawwaz.wordle.presentation.components.GameTitle
+import id.fawwaz.wordle.presentation.components.Keyboard
+import id.fawwaz.wordle.presentation.components.WordTile
 import id.fawwaz.wordle.utils.LetterStatus
-import id.fawwaz.wordle.viewmodels.GameEvent
 import id.fawwaz.wordle.viewmodels.GameViewModel
+import id.fawwaz.wordle.viewmodels.models.GameEvent
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable

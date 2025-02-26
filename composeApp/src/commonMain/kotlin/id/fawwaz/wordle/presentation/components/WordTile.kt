@@ -1,4 +1,4 @@
-package id.fawwaz.wordle.components
+package id.fawwaz.wordle.presentation.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.LinearEasing
@@ -31,6 +31,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.fawwaz.wordle.theme.WordleTheme
 import id.fawwaz.wordle.theme.cardBackgroundNeutral
+import id.fawwaz.wordle.theme.correct
+import id.fawwaz.wordle.theme.exists
+import id.fawwaz.wordle.theme.incorrect
 import id.fawwaz.wordle.utils.LetterStatus
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -48,9 +51,9 @@ fun WordTile(
     val backgroundCard by animateColorAsState(
         targetValue = when (reveal) {
             LetterStatus.DEFAULT -> MaterialTheme.colorScheme.cardBackgroundNeutral
-            LetterStatus.INCORRECT -> Color(0xFFF2EFE7)
-            LetterStatus.EXIST -> Color(0xFFEDCCBA)
-            LetterStatus.CORRECT -> Color(0xFFC0EEBD)
+            LetterStatus.INCORRECT -> MaterialTheme.colorScheme.incorrect
+            LetterStatus.EXIST -> MaterialTheme.colorScheme.exists
+            LetterStatus.CORRECT -> MaterialTheme.colorScheme.correct
         },
         label = "Background Card Animated"
     )

@@ -1,4 +1,4 @@
-package id.fawwaz.wordle.components
+package id.fawwaz.wordle.presentation.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
@@ -25,6 +25,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import id.fawwaz.wordle.theme.WordleTheme
+import id.fawwaz.wordle.theme.correct
+import id.fawwaz.wordle.theme.incorrect
+import id.fawwaz.wordle.theme.keyboardDefault
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private val Chars = listOf(
@@ -76,9 +79,9 @@ fun KeyboardItem(
 ) {
     val backgroundCard by animateColorAsState(
         targetValue = when {
-            char in selectedValues && char in guessWord -> Color(0xFFC0EEBD)
-            char in selectedValues && char !in guessWord -> Color(0xFF7d7c7a)
-            else -> Color(0xFFD8D7D0)
+            char in selectedValues && char in guessWord -> MaterialTheme.colorScheme.correct
+            char in selectedValues && char !in guessWord -> MaterialTheme.colorScheme.incorrect
+            else -> MaterialTheme.colorScheme.keyboardDefault
         },
         label = "Background Card Animated"
     )
