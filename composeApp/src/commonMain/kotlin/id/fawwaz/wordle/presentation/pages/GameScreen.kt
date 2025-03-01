@@ -1,5 +1,6 @@
 package id.fawwaz.wordle.presentation.pages
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -7,16 +8,25 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import id.fawwaz.wordle.presentation.components.GameTitle
 import id.fawwaz.wordle.presentation.components.Keyboard
 import id.fawwaz.wordle.presentation.components.WordTile
+import id.fawwaz.wordle.theme.WordleTheme
+import id.fawwaz.wordle.theme.cardBackgroundNeutral
 import id.fawwaz.wordle.utils.LetterStatus
 import id.fawwaz.wordle.viewmodels.GameViewModel
 import id.fawwaz.wordle.viewmodels.models.GameEvent
@@ -42,6 +52,64 @@ fun GameScreen() {
         onEnterClicked = { gameViewModel.onEvent(GameEvent.OnEnterClicked) },
         onErrorEnded = { gameViewModel.onEvent(GameEvent.OnErrorEnded) }
     )
+
+    if (state.isWon) {
+        Dialog(
+            onDismissRequest = { },
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        ) {
+            Column(
+                modifier = Modifier.background(MaterialTheme.colorScheme.cardBackgroundNeutral)
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("Congratulation, you won!")
+
+                Button(
+                    onClick = {
+                        gameViewModel.onEvent(GameEvent.OnStartGame)
+                    }
+                ) {
+                    Text("Try Again")
+                }
+            }
+        }
+    }
+
+    if (state.isFailed) {
+        Dialog(
+            onDismissRequest = { },
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        ) {
+            Column(
+                modifier = Modifier.background(
+                    color = MaterialTheme.colorScheme.cardBackgroundNeutral,
+                    shape = RoundedCornerShape(8.dp)
+                ).padding(horizontal = 48.dp, vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("You failed!")
+                Text("The word is: ${state.guessWord.id}")
+                Text("It means ${state.guessWord.subMeaning}")
+
+                Button(
+                    onClick = {
+                        gameViewModel.onEvent(GameEvent.OnStartGame)
+                    }
+                ) {
+                    Text("Try Again")
+                }
+            }
+        }
+    }
 }
 
 @Composable
@@ -59,7 +127,8 @@ fun GameContent(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         GameTitle(
-            modifier = Modifier.padding(horizontal = 60.dp).padding(bottom = 24.dp)
+            modifier = Modifier.padding(horizontal = 60.dp)
+                .padding(bottom = 24.dp)
         )
 
         Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {

@@ -47,6 +47,10 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
                             guessWord = response,
                             currentColIdx = 0,
                             currentRowIdx = 0,
+                            isWon = false,
+                            isFailed = false,
+                            isShaking = false,
+                            selectedValues = emptyList(),
                             isPlaying = true
                         )
                     }
@@ -70,7 +74,8 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
             is GameEvent.OnCharClicked -> {
                 if (!state.value.isPlaying) return
 
-                currentAnswerCol[currentRowIdx] = if (currentAnswerRow.isBlank()) event.char else currentAnswerRow
+                currentAnswerCol[currentRowIdx] =
+                    if (currentAnswerRow.isBlank()) event.char else currentAnswerRow
                 _state.update {
                     it.copy(currentRowIdx = (currentRowIdx + 1).coerceAtMost(answers.lastIndex))
                 }

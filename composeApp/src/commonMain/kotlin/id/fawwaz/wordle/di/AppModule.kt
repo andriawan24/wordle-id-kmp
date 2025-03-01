@@ -32,7 +32,7 @@ val appModule = module {
             }
 
             defaultRequest {
-                url("http://192.168.0.100:8080/")
+                url("http://192.168.1.6:8080/")
             }
 
             engine {
