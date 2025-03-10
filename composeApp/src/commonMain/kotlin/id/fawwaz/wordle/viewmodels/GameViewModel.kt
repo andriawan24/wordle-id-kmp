@@ -59,12 +59,11 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
     }
 
     fun onEvent(event: GameEvent) {
-        val currentColIdx = state.value.currentColIdx
-        val currentRowIdx = state.value.currentRowIdx
-        val answers = this@GameViewModel.answers.value
-
-        val currentAnswerCol = answers[currentColIdx]
-        val currentAnswerRow = answers[currentColIdx][currentRowIdx]
+        val chars = this@GameViewModel.answers.value
+        val charColIdx = state.value.currentColIdx
+        val charRowIdx = state.value.currentRowIdx
+        val charsCol = chars[charColIdx]
+        val charRow = chars[charColIdx][charRowIdx]
 
         when (event) {
             GameEvent.OnStartGame -> {
@@ -74,68 +73,75 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
             is GameEvent.OnCharClicked -> {
                 if (!state.value.isPlaying) return
 
-                currentAnswerCol[currentRowIdx] =
-                    if (currentAnswerRow.isBlank()) event.char else currentAnswerRow
+                charsCol[charRowIdx] = if (charRow.isBlank()) event.char else charRow
                 _state.update {
-                    it.copy(currentRowIdx = (currentRowIdx + 1).coerceAtMost(answers.lastIndex))
+                    it.copy(currentRowIdx = (charRowIdx + 1).coerceAtMost(chars.lastIndex))
                 }
             }
 
             GameEvent.OnDeleteClicked -> {
                 if (!state.value.isPlaying) return
 
-                if (currentRowIdx == answers.lastIndex && currentAnswerRow.isNotBlank()) {
-                    currentAnswerCol[currentRowIdx] = ""
+                if (charRowIdx == chars.lastIndex && charRow.isNotBlank()) {
+                    charsCol[charRowIdx] = ""
                 } else {
-                    val newRowIndex = (currentRowIdx - 1).coerceAtLeast(0)
+                    val newRowIndex = (charRowIdx - 1).coerceAtLeast(0)
                     _state.update { it.copy(currentRowIdx = newRowIndex) }
-                    currentAnswerCol[newRowIndex] = ""
+                    charsCol[newRowIndex] = ""
                 }
             }
 
             GameEvent.OnEnterClicked -> {
                 viewModelScope.launch {
-                    val isValid = currentAnswerCol.all { it.isNotBlank() }
+                    val currentAnswer = charsCol.joinToString("")
+                    val isValid = currentAnswer.length == 5
                     if (!isValid) {
                         _state.update { it.copy(isShaking = true) }
                         return@launch
                     }
 
-                    answers[currentColIdx].forEachIndexed { rowIdx, answerCh ->
-                        // Check on letter position
-                        val target = state.value.guessWord.id
-                        val targetCh = target[rowIdx].toString()
-                        val letterStatus = GameHelper.checkAnswer(
-                            answerCh = answerCh,
-                            targetCh = targetCh,
-                            target = target
-                        )
+                    wordleUseCase.searchWord(currentAnswer)
+                        .catch {
+                            _state.update { it.copy(isShaking = true) }
+                        }
+                        .collectLatest {
+                            chars[charColIdx].forEachIndexed { rowIdx, answerCh ->
+                                // Check on letter position
+                                val target = state.value.guessWord.id
+                                val targetCh = target[rowIdx].toString()
+                                val letterStatus = GameHelper.checkAnswer(
+                                    answerCh = answerCh,
+                                    targetCh = targetCh,
+                                    target = target
+                                )
 
-                        // Change letter status
-                        letterStatuses.value[currentColIdx][rowIdx] = letterStatus
+                                // Change letter status
+                                letterStatuses.value[charColIdx][rowIdx] = letterStatus
 
-                        // Change keyboard status
-                        val newKeyboardStatus = keyboardStatuses.value
-                        newKeyboardStatus.put(answerCh, letterStatus)
+                                // Change keyboard status
+                                val newKeyboardStatus = keyboardStatuses.value
+                                newKeyboardStatus.put(answerCh, letterStatus)
 
-                        _state.update { it.copy(selectedValues = it.selectedValues + answerCh) }
-                        _keyboardStatuses.update { newKeyboardStatus }
+                                _state.update { it.copy(selectedValues = it.selectedValues + answerCh) }
+                                _keyboardStatuses.update { newKeyboardStatus }
 
-                        delay(300)
-                    }
+                                delay(300)
+                            }
 
-                    val isWon = letterStatuses.value.last().all { it == LetterStatus.CORRECT }
-                    val isFailed = !isWon && currentColIdx == 4 // Last index
+                            val isWon =
+                                letterStatuses.value.last().all { it == LetterStatus.CORRECT }
+                            val isFailed = !isWon && charColIdx == 4 // Last index
 
-                    _state.update {
-                        it.copy(
-                            currentColIdx = (currentColIdx + 1).coerceAtMost(answers.lastIndex),
-                            currentRowIdx = 0,
-                            isWon = isWon,
-                            isFailed = isFailed,
-                            isPlaying = !isWon && !isFailed
-                        )
-                    }
+                            _state.update {
+                                it.copy(
+                                    currentColIdx = (charColIdx + 1).coerceAtMost(chars.lastIndex),
+                                    currentRowIdx = 0,
+                                    isWon = isWon,
+                                    isFailed = isFailed,
+                                    isPlaying = !isWon && !isFailed
+                                )
+                            }
+                        }
                 }
             }
 

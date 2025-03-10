@@ -12,4 +12,10 @@ class WordleUseCase(private val repository: WordleRepository) {
             emit(repository.getRandomWord())
         }
     }
+
+    fun searchWord(word: String): Flow<KeywordModel?> {
+        return flow {
+            emit(repository.searchWord(word))
+        }
+    }
 }
