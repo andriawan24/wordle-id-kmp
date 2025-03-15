@@ -8,6 +8,7 @@ koin = "4.0.2"
 kotlin = "2.1.10"
 ktor = "3.0.3"
 logback = "1.5.16"
+napier = "2.7.1"
 sqliteJdbc = "3.44.1.0"
 
 [libraries]
@@ -35,6 +36,7 @@ ktor-server-content-negotiation-jvm = { module = "io.ktor:ktor-server-content-ne
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
 ktor-client-cio = { module = "io.ktor:ktor-client-cio", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
+napier = { module = "io.github.aakira:napier", version.ref = "napier" }
 sqlite-jdbc = { module = "org.xerial:sqlite-jdbc", version.ref = "sqliteJdbc" }
 
 [plugins]

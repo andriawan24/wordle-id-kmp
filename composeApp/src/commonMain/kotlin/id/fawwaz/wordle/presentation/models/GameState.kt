@@ -1,6 +1,7 @@
-package id.fawwaz.wordle.viewmodels.models
+package id.fawwaz.wordle.presentation.models
 
 import id.fawwaz.wordle.domain.models.KeywordModel
+import id.fawwaz.wordle.utils.emptyString
 
 data class GameState(
     val currentColIdx: Int = 0,
@@ -11,7 +12,8 @@ data class GameState(
     val isWon: Boolean = false,
     val isFailed: Boolean = false,
     val isPlaying: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val message: String = emptyString()
 )
 
 sealed class GameEvent() {

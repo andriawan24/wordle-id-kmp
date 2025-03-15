@@ -6,12 +6,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import id.fawwaz.wordle.domain.models.KeywordModel
 import id.fawwaz.wordle.domain.usecases.WordleUseCase
+import id.fawwaz.wordle.presentation.models.GameEvent
+import id.fawwaz.wordle.presentation.models.GameState
 import id.fawwaz.wordle.utils.GameHelper
 import id.fawwaz.wordle.utils.KeyboardHelper
-import id.fawwaz.wordle.utils.LetterStatus
+import id.fawwaz.wordle.utils.enums.LetterStatus
 import id.fawwaz.wordle.utils.Result
-import id.fawwaz.wordle.viewmodels.models.GameEvent
-import id.fawwaz.wordle.viewmodels.models.GameState
+import id.fawwaz.wordle.utils.emptyString
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -40,34 +42,34 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
             wordleUseCase.getRandomWord()
                 .collectLatest { response ->
                     when (response) {
-                        Result.Loading -> {
-                            _state.update {
-                                it.copy(
-                                    guessWord = KeywordModel(),
-                                    currentColIdx = 0,
-                                    currentRowIdx = 0,
-                                    isWon = false,
-                                    isFailed = false,
-                                    isShaking = false,
-                                    selectedValues = emptyList(),
-                                    isPlaying = false,
-                                    isLoading = true
-                                )
-                            }
+                        Result.Loading -> _state.update {
+                            it.copy(
+                                guessWord = KeywordModel(),
+                                currentColIdx = 0,
+                                currentRowIdx = 0,
+                                isWon = false,
+                                isFailed = false,
+                                isShaking = false,
+                                selectedValues = emptyList(),
+                                isPlaying = false,
+                                isLoading = true
+                            )
                         }
 
-                        is Result.Success<KeywordModel> -> {
-                            _state.update {
-                                it.copy(
-                                    guessWord = response.data,
-                                    isLoading = false,
-                                    isPlaying = true
-                                )
-                            }
+                        is Result.Success<KeywordModel> -> _state.update {
+                            it.copy(
+                                guessWord = response.data,
+                                isLoading = false,
+                                isPlaying = true
+                            )
                         }
 
-                        is Result.Failure -> {
-
+                        is Result.Failure -> _state.update {
+                            it.copy(
+                                isLoading = false,
+                                isPlaying = false,
+                                message = response.message
+                            )
                         }
 
                         else -> Unit
@@ -80,18 +82,17 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
         val chars = this@GameViewModel.answers.value
         val charColIdx = state.value.currentColIdx
         val charRowIdx = state.value.currentRowIdx
-        val charsCol = chars[charColIdx]
-        val charRow = chars[charColIdx][charRowIdx]
+        val ansChars = chars[charColIdx]
+        val targetChar = chars[charColIdx][charRowIdx]
 
         when (event) {
-            GameEvent.OnStartGame -> {
-                getRandomWord()
-            }
+            GameEvent.OnStartGame -> getRandomWord()
 
             is GameEvent.OnCharClicked -> {
                 if (!state.value.isPlaying) return
 
-                charsCol[charRowIdx] = if (charRow.isBlank()) event.char else charRow
+                ansChars[charRowIdx] = if (targetChar.isBlank()) event.char else targetChar
+
                 _state.update {
                     it.copy(currentRowIdx = (charRowIdx + 1).coerceAtMost(chars.lastIndex))
                 }
@@ -100,74 +101,79 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
             GameEvent.OnDeleteClicked -> {
                 if (!state.value.isPlaying) return
 
-                if (charRowIdx == chars.lastIndex && charRow.isNotBlank()) {
-                    charsCol[charRowIdx] = ""
+                if (charRowIdx == chars.lastIndex && targetChar.isNotBlank()) {
+                    ansChars[charRowIdx] = emptyString()
                 } else {
                     val newRowIndex = (charRowIdx - 1).coerceAtLeast(0)
                     _state.update { it.copy(currentRowIdx = newRowIndex) }
-                    charsCol[newRowIndex] = ""
+                    ansChars[newRowIndex] = emptyString()
                 }
             }
 
-            GameEvent.OnEnterClicked -> {
-                viewModelScope.launch {
-                    val currentAnswer = charsCol.joinToString("")
-                    val isValid = currentAnswer.length == 5
-
-                    if (!isValid) {
-                        _state.update { it.copy(isShaking = true) }
-                        return@launch
-                    }
-
-                    wordleUseCase.searchWord(currentAnswer)
-                        .catch {
-                            _state.update { it.copy(isShaking = true) }
-                        }
-                        .collectLatest {
-                            chars[charColIdx].forEachIndexed { rowIdx, answerCh ->
-                                // Check on letter position
-                                val target = state.value.guessWord.id
-                                val targetCh = target[rowIdx].toString()
-                                val letterStatus = GameHelper.checkAnswer(
-                                    answerCh = answerCh,
-                                    targetCh = targetCh,
-                                    target = target
-                                )
-
-                                // Change letter status
-                                letterStatuses.value[charColIdx][rowIdx] = letterStatus
-
-                                // Change keyboard status
-                                val newKeyboardStatus = keyboardStatuses.value
-                                newKeyboardStatus.put(answerCh, letterStatus)
-
-                                _state.update { it.copy(selectedValues = it.selectedValues + answerCh) }
-                                _keyboardStatuses.update { newKeyboardStatus }
-
-                                delay(300)
-                            }
-
-                            val isWon = letterStatuses.value.last().all { status ->
-                                status == LetterStatus.CORRECT
-                            }
-                            val isFailed = !isWon && charColIdx == 4 // Last index
-
-                            _state.update {
-                                it.copy(
-                                    currentColIdx = (charColIdx + 1).coerceAtMost(chars.lastIndex),
-                                    currentRowIdx = 0,
-                                    isWon = isWon,
-                                    isFailed = isFailed,
-                                    isPlaying = !isWon && !isFailed
-                                )
-                            }
-                        }
-                }
-            }
+            GameEvent.OnEnterClicked -> handleEnterClicked(ansChars, charColIdx)
 
             GameEvent.OnErrorEnded -> _state.update {
                 it.copy(isShaking = false)
             }
+        }
+    }
+
+    private fun handleEnterClicked(
+        ansChars: SnapshotStateList<String>,
+        charColIdx: Int
+    ) {
+        viewModelScope.launch {
+            val currentAnswer = ansChars.joinToString("")
+            val isValid = currentAnswer.length == 5
+
+            if (!isValid) {
+                _state.update { it.copy(isShaking = true) }
+                return@launch
+            }
+
+            wordleUseCase.searchWord(currentAnswer)
+                .catch {
+                    _state.update { it.copy(isShaking = true) }
+                }
+                .collectLatest {
+                    ansChars.forEachIndexed { rowIdx, answerCh ->
+                        // Check on letter position
+                        val target = state.value.guessWord.id
+                        val targetCh = target[rowIdx].toString()
+                        val letterStatus = GameHelper.checkAnswer(
+                            answerCh = answerCh,
+                            targetCh = targetCh,
+                            target = target
+                        )
+
+                        // Change letter status
+                        letterStatuses.value[charColIdx][rowIdx] = letterStatus
+
+                        // Change keyboard status
+                        val newKeyboardStatus = keyboardStatuses.value
+                        newKeyboardStatus.put(answerCh, letterStatus)
+
+                        _state.update { it.copy(selectedValues = it.selectedValues + answerCh) }
+                        _keyboardStatuses.update { newKeyboardStatus }
+
+                        delay(300)
+                    }
+
+                    val isWon = letterStatuses.value.last().all { status ->
+                        status == LetterStatus.CORRECT
+                    }
+                    val isFailed = !isWon && charColIdx == 4 // Last index
+
+                    _state.update {
+                        it.copy(
+                            currentColIdx = (charColIdx + 1).coerceAtMost(4),
+                            currentRowIdx = 0,
+                            isWon = isWon,
+                            isFailed = isFailed,
+                            isPlaying = !isWon && !isFailed
+                        )
+                    }
+                }
         }
     }
 }

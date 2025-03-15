@@ -2,6 +2,7 @@ package id.fawwaz.wordle.utils
 
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.snapshots.SnapshotStateMap
+import id.fawwaz.wordle.utils.enums.LetterStatus
 
 object KeyboardHelper {
     const val ENTER = "ENTER"

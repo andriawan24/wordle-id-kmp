@@ -33,7 +33,7 @@ import id.fawwaz.wordle.theme.cardBackgroundNeutral
 import id.fawwaz.wordle.theme.correct
 import id.fawwaz.wordle.theme.exists
 import id.fawwaz.wordle.theme.incorrect
-import id.fawwaz.wordle.utils.LetterStatus
+import id.fawwaz.wordle.utils.enums.LetterStatus
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @Composable

@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import id.fawwaz.wordle.theme.WordleTheme
-import id.fawwaz.wordle.utils.LetterStatus
+import id.fawwaz.wordle.utils.enums.LetterStatus
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
 private const val Title = "WORDLE"

@@ -32,7 +32,7 @@ import id.fawwaz.wordle.theme.exists
 import id.fawwaz.wordle.theme.incorrect
 import id.fawwaz.wordle.theme.keyboardDefault
 import id.fawwaz.wordle.utils.KeyboardHelper
-import id.fawwaz.wordle.utils.LetterStatus
+import id.fawwaz.wordle.utils.enums.LetterStatus
 import id.fawwaz.wordle.viewmodels.GameViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel

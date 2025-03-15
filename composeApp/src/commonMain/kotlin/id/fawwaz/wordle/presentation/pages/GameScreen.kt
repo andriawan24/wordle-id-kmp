@@ -25,11 +25,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import id.fawwaz.wordle.presentation.components.GameTitle
 import id.fawwaz.wordle.presentation.components.Keyboard
 import id.fawwaz.wordle.presentation.components.WordTile
-import id.fawwaz.wordle.theme.WordleTheme
 import id.fawwaz.wordle.theme.cardBackgroundNeutral
-import id.fawwaz.wordle.utils.LetterStatus
+import id.fawwaz.wordle.utils.enums.LetterStatus
 import id.fawwaz.wordle.viewmodels.GameViewModel
-import id.fawwaz.wordle.viewmodels.models.GameEvent
+import id.fawwaz.wordle.presentation.models.GameEvent
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -62,18 +61,14 @@ fun GameScreen() {
             )
         ) {
             Column(
-                modifier = Modifier.background(MaterialTheme.colorScheme.cardBackgroundNeutral)
+                modifier = Modifier
+                    .background(MaterialTheme.colorScheme.cardBackgroundNeutral)
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Text("Congratulation, you won!")
-
-                Button(
-                    onClick = {
-                        gameViewModel.onEvent(GameEvent.OnStartGame)
-                    }
-                ) {
+                Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
                     Text("Try Again")
                 }
             }
@@ -99,12 +94,34 @@ fun GameScreen() {
                 Text("You failed!")
                 Text("The word is: ${state.guessWord.id}")
                 Text("It means ${state.guessWord.subMeaning}")
+                Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
+                    Text("Try Again")
+                }
+            }
+        }
+    }
 
-                Button(
-                    onClick = {
-                        gameViewModel.onEvent(GameEvent.OnStartGame)
-                    }
-                ) {
+    if (state.message.isNotBlank()) {
+        Dialog(
+            onDismissRequest = { },
+            properties = DialogProperties(
+                dismissOnBackPress = false,
+                dismissOnClickOutside = false
+            )
+        ) {
+            Column(
+                modifier = Modifier
+                    .background(
+                        color = MaterialTheme.colorScheme.cardBackgroundNeutral,
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                    .padding(horizontal = 48.dp, vertical = 24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                Text("Failed to load the game")
+                Text("The word is: ${state.message}")
+                Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
                     Text("Try Again")
                 }
             }
@@ -127,7 +144,8 @@ fun GameContent(
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         GameTitle(
-            modifier = Modifier.padding(horizontal = 60.dp)
+            modifier = Modifier
+                .padding(horizontal = 60.dp)
                 .padding(bottom = 24.dp)
         )
 
