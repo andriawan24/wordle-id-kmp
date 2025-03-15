@@ -10,10 +10,9 @@ import id.fawwaz.wordle.presentation.models.GameEvent
 import id.fawwaz.wordle.presentation.models.GameState
 import id.fawwaz.wordle.utils.GameHelper
 import id.fawwaz.wordle.utils.KeyboardHelper
-import id.fawwaz.wordle.utils.enums.LetterStatus
 import id.fawwaz.wordle.utils.Result
 import id.fawwaz.wordle.utils.emptyString
-import io.github.aakira.napier.Napier
+import id.fawwaz.wordle.utils.enums.LetterStatus
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -71,8 +70,6 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
                                 message = response.message
                             )
                         }
-
-                        else -> Unit
                     }
                 }
         }
@@ -87,16 +84,17 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
 
         when (event) {
             GameEvent.OnStartGame -> getRandomWord()
+            is GameEvent.OnCharClicked -> handleCharClicked(
+                ansChars = ansChars,
+                charRowIdx = charRowIdx,
+                targetChar = targetChar,
+                char = event.char
+            )
 
-            is GameEvent.OnCharClicked -> {
-                if (!state.value.isPlaying) return
-
-                ansChars[charRowIdx] = if (targetChar.isBlank()) event.char else targetChar
-
-                _state.update {
-                    it.copy(currentRowIdx = (charRowIdx + 1).coerceAtMost(chars.lastIndex))
-                }
-            }
+            GameEvent.OnEnterClicked -> handleEnterClicked(
+                ansChars = ansChars,
+                charColIdx = charColIdx
+            )
 
             GameEvent.OnDeleteClicked -> {
                 if (!state.value.isPlaying) return
@@ -110,21 +108,29 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
                 }
             }
 
-            GameEvent.OnEnterClicked -> handleEnterClicked(ansChars, charColIdx)
-
             GameEvent.OnErrorEnded -> _state.update {
                 it.copy(isShaking = false)
             }
         }
     }
 
-    private fun handleEnterClicked(
+    private fun handleCharClicked(
         ansChars: SnapshotStateList<String>,
-        charColIdx: Int
+        charRowIdx: Int,
+        targetChar: String,
+        char: String
     ) {
+        if (!state.value.isPlaying) return
+        ansChars[charRowIdx] = if (targetChar.isBlank()) char else targetChar
+        _state.update {
+            it.copy(currentRowIdx = (charRowIdx + 1).coerceAtMost(ROW_SIZE - 1))
+        }
+    }
+
+    private fun handleEnterClicked(ansChars: SnapshotStateList<String>, charColIdx: Int) {
         viewModelScope.launch {
-            val currentAnswer = ansChars.joinToString("")
-            val isValid = currentAnswer.length == 5
+            val currentAnswer = ansChars.joinToString(emptyString())
+            val isValid = currentAnswer.length == ROW_SIZE
 
             if (!isValid) {
                 _state.update { it.copy(isShaking = true) }
@@ -159,14 +165,14 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
                         delay(300)
                     }
 
-                    val isWon = letterStatuses.value.last().all { status ->
+                    val isWon = letterStatuses.value.getOrNull(charColIdx).orEmpty().all { status ->
                         status == LetterStatus.CORRECT
                     }
-                    val isFailed = !isWon && charColIdx == 4 // Last index
+                    val isFailed = !isWon && charColIdx == COL_SIZE - 1 // Last index
 
                     _state.update {
                         it.copy(
-                            currentColIdx = (charColIdx + 1).coerceAtMost(4),
+                            currentColIdx = (charColIdx + 1).coerceAtMost(COL_SIZE - 1),
                             currentRowIdx = 0,
                             isWon = isWon,
                             isFailed = isFailed,
@@ -175,5 +181,10 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
                     }
                 }
         }
+    }
+
+    companion object {
+        const val COL_SIZE = 5
+        const val ROW_SIZE = 5
     }
 }

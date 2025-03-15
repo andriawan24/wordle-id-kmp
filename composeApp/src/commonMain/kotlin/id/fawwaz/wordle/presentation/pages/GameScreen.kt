@@ -22,13 +22,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import id.fawwaz.wordle.presentation.components.GameDialog
 import id.fawwaz.wordle.presentation.components.GameTitle
 import id.fawwaz.wordle.presentation.components.Keyboard
 import id.fawwaz.wordle.presentation.components.WordTile
+import id.fawwaz.wordle.presentation.models.GameEvent
 import id.fawwaz.wordle.theme.cardBackgroundNeutral
 import id.fawwaz.wordle.utils.enums.LetterStatus
 import id.fawwaz.wordle.viewmodels.GameViewModel
-import id.fawwaz.wordle.presentation.models.GameEvent
+import indonesianwordle.composeapp.generated.resources.Res
+import indonesianwordle.composeapp.generated.resources.action_try_again
+import indonesianwordle.composeapp.generated.resources.title_won
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -52,81 +57,35 @@ fun GameScreen() {
         onErrorEnded = { gameViewModel.onEvent(GameEvent.OnErrorEnded) }
     )
 
-    if (state.isWon) {
-        Dialog(
-            onDismissRequest = { },
-            properties = DialogProperties(
-                dismissOnBackPress = false,
-                dismissOnClickOutside = false
-            )
-        ) {
-            Column(
-                modifier = Modifier
-                    .background(MaterialTheme.colorScheme.cardBackgroundNeutral)
-                    .padding(24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text("Congratulation, you won!")
-                Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
-                    Text("Try Again")
-                }
+    GameDialog(
+        isShowing = state.isWon,
+        title = stringResource(Res.string.title_won),
+        message = "The word is: ${state.guessWord.id}",
+        description = "It means ${state.guessWord.subMeaning}",
+        actionButton = {
+            Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
+                Text(stringResource(Res.string.action_try_again))
             }
         }
-    }
+    )
 
-    if (state.isFailed) {
-        Dialog(
-            onDismissRequest = { },
-            properties = DialogProperties(
-                dismissOnBackPress = false,
-                dismissOnClickOutside = false
-            )
-        ) {
-            Column(
-                modifier = Modifier.background(
-                    color = MaterialTheme.colorScheme.cardBackgroundNeutral,
-                    shape = RoundedCornerShape(8.dp)
-                ).padding(horizontal = 48.dp, vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text("You failed!")
-                Text("The word is: ${state.guessWord.id}")
-                Text("It means ${state.guessWord.subMeaning}")
-                Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
-                    Text("Try Again")
-                }
-            }
-        }
-    }
+    GameDialog(
+        isShowing = state.message.isNotBlank(),
+        title = "You failed!",
+        message = "Error Message: ${state.message}"
+    )
 
-    if (state.message.isNotBlank()) {
-        Dialog(
-            onDismissRequest = { },
-            properties = DialogProperties(
-                dismissOnBackPress = false,
-                dismissOnClickOutside = false
-            )
-        ) {
-            Column(
-                modifier = Modifier
-                    .background(
-                        color = MaterialTheme.colorScheme.cardBackgroundNeutral,
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .padding(horizontal = 48.dp, vertical = 24.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                Text("Failed to load the game")
-                Text("The word is: ${state.message}")
-                Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
-                    Text("Try Again")
-                }
+    GameDialog(
+        isShowing = state.isFailed,
+        title = "Failed to load the game",
+        message = "The word is: ${state.guessWord.id}",
+        description = "It means ${state.guessWord.subMeaning}",
+        actionButton = {
+            Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
+                Text(stringResource(Res.string.action_try_again))
             }
         }
-    }
+    )
 }
 
 @Composable
