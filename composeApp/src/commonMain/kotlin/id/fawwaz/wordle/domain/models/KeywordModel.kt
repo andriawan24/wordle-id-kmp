@@ -1,48 +1,47 @@
 package id.fawwaz.wordle.domain.models
 
-import androidx.compose.ui.text.intl.Locale
-import androidx.compose.ui.text.toUpperCase
 import id.fawwaz.wordle.data.models.KeywordResponse
+import id.fawwaz.wordle.utils.emptyString
 
 data class KeywordModel(
     val alreadyShown: Boolean = false,
-    val baseWord: String = "",
-    val compoundWord: String = "",
-    val derivedWord: String = "",
-    val etymology: String = "",
-    val example: String = "",
-    val grade: String = "",
-    val id: String = "",
-    val idiom: String = "",
-    val info: String = "",
-    val name: String = "",
-    val nonStandardForm: String = "",
-    val number: String = "",
-    val pronunciation: String = "",
-    val proverb: String = "",
-    val subMeaning: String = "",
-    val variant: String = ""
+    val baseWord: String = emptyString(),
+    val compoundWord: String = emptyString(),
+    val derivedWord: String = emptyString(),
+    val etymology: String = emptyString(),
+    val example: String = emptyString(),
+    val grade: String = emptyString(),
+    val id: String = emptyString(),
+    val idiom: String = emptyString(),
+    val info: String = emptyString(),
+    val name: String = emptyString(),
+    val nonStandardForm: String = emptyString(),
+    val number: String = emptyString(),
+    val pronunciation: String = emptyString(),
+    val proverb: String = emptyString(),
+    val subMeaning: String = emptyString(),
+    val variant: String = emptyString()
 ) {
     companion object {
         fun from(response: KeywordResponse): KeywordModel {
             return KeywordModel(
-                alreadyShown = response.alreadyShown ?: false,
-                baseWord = response.baseWord ?: "",
-                compoundWord = response.compoundWord ?: "",
-                derivedWord = response.derivedWord ?: "",
-                etymology = response.etymology ?: "",
-                example = response.example ?: "",
-                grade = response.grade ?: "",
-                id = response.id?.uppercase() ?: "",
-                idiom = response.idiom ?: "",
-                info = response.info ?: "",
-                name = response.name ?: "",
-                nonStandardForm = response.nonStandardForm ?: "",
-                number = response.number ?: "",
-                pronunciation = response.pronunciation ?: "",
-                proverb = response.proverb ?: "",
-                subMeaning = response.subMeaning ?: "",
-                variant = response.variant ?: ""
+                alreadyShown = response.alreadyShown == true,
+                baseWord = response.baseWord ?: emptyString(),
+                compoundWord = response.compoundWord ?: emptyString(),
+                derivedWord = response.derivedWord ?: emptyString(),
+                etymology = response.etymology ?: emptyString(),
+                example = response.example ?: emptyString(),
+                grade = response.grade ?: emptyString(),
+                id = response.id?.uppercase() ?: emptyString(),
+                idiom = response.idiom ?: emptyString(),
+                info = response.info ?: emptyString(),
+                name = response.name ?: emptyString(),
+                nonStandardForm = response.nonStandardForm ?: emptyString(),
+                number = response.number ?: emptyString(),
+                pronunciation = response.pronunciation ?: emptyString(),
+                proverb = response.proverb ?: emptyString(),
+                subMeaning = response.subMeaning ?: emptyString(),
+                variant = response.variant ?: emptyString()
             )
         }
     }

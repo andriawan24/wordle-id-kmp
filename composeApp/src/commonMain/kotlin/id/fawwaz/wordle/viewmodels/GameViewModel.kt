@@ -4,10 +4,12 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import id.fawwaz.wordle.domain.models.KeywordModel
 import id.fawwaz.wordle.domain.usecases.WordleUseCase
 import id.fawwaz.wordle.utils.GameHelper
 import id.fawwaz.wordle.utils.KeyboardHelper
 import id.fawwaz.wordle.utils.LetterStatus
+import id.fawwaz.wordle.utils.Result
 import id.fawwaz.wordle.viewmodels.models.GameEvent
 import id.fawwaz.wordle.viewmodels.models.GameState
 import kotlinx.coroutines.delay
@@ -36,23 +38,39 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
     fun getRandomWord() {
         viewModelScope.launch {
             wordleUseCase.getRandomWord()
-                .catch {
-                    // TODO: Handle data error
-                    println("Error word: $it")
-                    // _wordResult.emit(Result.Failure(it.message ?: "Unknown error"))
-                }
                 .collectLatest { response ->
-                    _state.update {
-                        it.copy(
-                            guessWord = response,
-                            currentColIdx = 0,
-                            currentRowIdx = 0,
-                            isWon = false,
-                            isFailed = false,
-                            isShaking = false,
-                            selectedValues = emptyList(),
-                            isPlaying = true
-                        )
+                    when (response) {
+                        Result.Loading -> {
+                            _state.update {
+                                it.copy(
+                                    guessWord = KeywordModel(),
+                                    currentColIdx = 0,
+                                    currentRowIdx = 0,
+                                    isWon = false,
+                                    isFailed = false,
+                                    isShaking = false,
+                                    selectedValues = emptyList(),
+                                    isPlaying = false,
+                                    isLoading = true
+                                )
+                            }
+                        }
+
+                        is Result.Success<KeywordModel> -> {
+                            _state.update {
+                                it.copy(
+                                    guessWord = response.data,
+                                    isLoading = false,
+                                    isPlaying = true
+                                )
+                            }
+                        }
+
+                        is Result.Failure -> {
+
+                        }
+
+                        else -> Unit
                     }
                 }
         }
@@ -95,6 +113,7 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
                 viewModelScope.launch {
                     val currentAnswer = charsCol.joinToString("")
                     val isValid = currentAnswer.length == 5
+
                     if (!isValid) {
                         _state.update { it.copy(isShaking = true) }
                         return@launch
@@ -128,8 +147,9 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
                                 delay(300)
                             }
 
-                            val isWon =
-                                letterStatuses.value.last().all { it == LetterStatus.CORRECT }
+                            val isWon = letterStatuses.value.last().all { status ->
+                                status == LetterStatus.CORRECT
+                            }
                             val isFailed = !isWon && charColIdx == 4 // Last index
 
                             _state.update {

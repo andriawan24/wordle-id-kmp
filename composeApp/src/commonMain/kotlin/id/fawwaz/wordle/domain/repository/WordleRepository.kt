@@ -9,7 +9,6 @@ class WordleRepository(private val dataSource: WordleDataSource) {
     }
 
     suspend fun searchWord(word: String): KeywordModel? {
-        val result = dataSource.searchWord(word)
-        return if (result != null) KeywordModel.from(result) else null
+        return dataSource.searchWord(word)?.let { KeywordModel.from(it) }
     }
 }

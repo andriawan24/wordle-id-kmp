@@ -10,7 +10,8 @@ data class GameState(
     val selectedValues: List<String> = emptyList(),
     val isWon: Boolean = false,
     val isFailed: Boolean = false,
-    val isPlaying: Boolean = false
+    val isPlaying: Boolean = false,
+    val isLoading: Boolean = false
 )
 
 sealed class GameEvent() {
