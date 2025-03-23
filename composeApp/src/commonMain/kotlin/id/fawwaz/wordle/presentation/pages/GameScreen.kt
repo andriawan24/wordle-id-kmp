@@ -28,6 +28,10 @@ import id.fawwaz.wordle.viewmodels.GameViewModel
 import indonesianwordle.composeapp.generated.resources.Res
 import indonesianwordle.composeapp.generated.resources.action_try_again
 import indonesianwordle.composeapp.generated.resources.label_message_revealed
+import indonesianwordle.composeapp.generated.resources.message_failed
+import indonesianwordle.composeapp.generated.resources.message_meaning
+import indonesianwordle.composeapp.generated.resources.title_failed
+import indonesianwordle.composeapp.generated.resources.title_failed_load_game
 import indonesianwordle.composeapp.generated.resources.title_won
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
@@ -57,7 +61,7 @@ fun GameScreen() {
         isShowing = state.isWon,
         title = stringResource(Res.string.title_won),
         message = stringResource(Res.string.label_message_revealed, state.guessWord.id),
-        description = "It means ${state.guessWord.subMeaning}",
+        description = stringResource(Res.string.message_meaning, state.guessWord.subMeaning),
         actionButton = {
             Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
                 Text(stringResource(Res.string.action_try_again))
@@ -67,15 +71,14 @@ fun GameScreen() {
 
     GameDialog(
         isShowing = state.message.isNotBlank(),
-        title = "You failed!",
-        message = "Error Message: ${state.message}"
+        title = stringResource(Res.string.title_failed),
+        message = stringResource(Res.string.message_failed, state.message)
     )
 
     GameDialog(
         isShowing = state.isFailed,
-        title = "Failed to load the game",
-        message = "The word is: ${state.guessWord.id}",
-        description = "It means ${state.guessWord.subMeaning}",
+        title = stringResource(Res.string.title_failed_load_game),
+        message = stringResource(Res.string.message_failed, state.message),
         actionButton = {
             Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
                 Text(stringResource(Res.string.action_try_again))
