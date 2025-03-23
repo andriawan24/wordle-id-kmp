@@ -37,7 +37,7 @@ object NetworkHelper {
         }
 
         defaultRequest {
-            url("http://192.168.5.130:8080/")
+            url("http://192.168.0.93:8080/")
         }
 
         engine {

@@ -34,7 +34,13 @@ import id.fawwaz.wordle.theme.correct
 import id.fawwaz.wordle.theme.exists
 import id.fawwaz.wordle.theme.incorrect
 import id.fawwaz.wordle.utils.enums.LetterStatus
+import indonesianwordle.composeapp.generated.resources.Res
+import indonesianwordle.composeapp.generated.resources.label_background_card_animated
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
+
+private const val SHAKE_TIMES = 3
+private const val SHAKE_DURATION = 100
 
 @Composable
 fun WordTile(
@@ -54,14 +60,14 @@ fun WordTile(
             LetterStatus.EXIST -> MaterialTheme.colorScheme.exists
             LetterStatus.CORRECT -> MaterialTheme.colorScheme.correct
         },
-        label = "Background Card Animated"
+        label = stringResource(Res.string.label_background_card_animated)
     )
 
     val offsetX by animateFloatAsState(
         targetValue = if (shouldShake) 10f else 0f,
         animationSpec = repeatable(
-            iterations = 3, // Shake three times
-            animation = tween(durationMillis = 100, easing = LinearEasing),
+            iterations = SHAKE_TIMES, // Shake three times
+            animation = tween(durationMillis = SHAKE_DURATION, easing = LinearEasing),
             repeatMode = RepeatMode.Reverse
         ),
         finishedListener = { shouldShake = false } // Reset shake after animation

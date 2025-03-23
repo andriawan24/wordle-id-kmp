@@ -11,9 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import id.fawwaz.wordle.theme.Dimension
 import id.fawwaz.wordle.theme.WordleTheme
 import id.fawwaz.wordle.theme.cardBackgroundNeutral
 import id.fawwaz.wordle.utils.emptyString
@@ -41,9 +41,9 @@ fun GameDialog(
                         color = MaterialTheme.colorScheme.cardBackgroundNeutral,
                         shape = MaterialTheme.shapes.large
                     )
-                    .padding(horizontal = 48.dp, vertical = 24.dp),
+                    .padding(all = Dimension.SIZE_24),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp)
+                verticalArrangement = Arrangement.spacedBy(Dimension.SIZE_12)
             ) {
                 Text(
                     text = title,
@@ -81,11 +81,7 @@ fun GameDialogPreview() {
             description = "It means blablablabalbalbalablabla",
             isShowing = true
         ) {
-            Button(
-                onClick = {
-
-                }
-            ) {
+            Button(onClick = { }) {
                 Text("Try Again")
             }
         }

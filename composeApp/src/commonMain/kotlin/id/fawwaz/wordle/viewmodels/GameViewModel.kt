@@ -1,7 +1,6 @@
 package id.fawwaz.wordle.viewmodels
 
 import androidx.compose.runtime.snapshots.SnapshotStateList
-import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import id.fawwaz.wordle.domain.models.KeywordModel
@@ -15,26 +14,43 @@ import id.fawwaz.wordle.utils.emptyString
 import id.fawwaz.wordle.utils.enums.LetterStatus
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
+typealias AnswersType = SnapshotStateList<SnapshotStateList<String>>
+
 class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
     private val _state = MutableStateFlow(GameState())
-    val state = _state.asStateFlow()
+    val state = _state.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+        initialValue = GameState()
+    )
 
     private val _letterStatuses = MutableStateFlow(GameHelper.resetStatuses())
-    val letterStatuses = _letterStatuses.asStateFlow()
+    val letterStatuses = _letterStatuses.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+        initialValue = GameHelper.resetStatuses()
+    )
 
-    private val _keyboardStatuses =
-        MutableStateFlow<SnapshotStateMap<String, LetterStatus>>(KeyboardHelper.generateKeyboardStatuses())
-    val keyboardStatuses = _keyboardStatuses.asStateFlow()
+    private val _keyboardStatuses = MutableStateFlow(KeyboardHelper.generateKeyboardStatuses())
+    val keyboardStatuses = _keyboardStatuses.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+        initialValue = KeyboardHelper.generateKeyboardStatuses()
+    )
 
-    private val _answers =
-        MutableStateFlow<SnapshotStateList<SnapshotStateList<String>>>(GameHelper.resetAnswers())
-    val answers = _answers.asStateFlow()
+    private val _answers = MutableStateFlow<AnswersType>(GameHelper.resetAnswers())
+    val answers = _answers.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(stopTimeoutMillis = 5_000),
+        initialValue = GameHelper.resetAnswers()
+    )
 
     fun getRandomWord() {
         viewModelScope.launch {

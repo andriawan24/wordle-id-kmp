@@ -29,7 +29,7 @@ fun GameTitle(modifier: Modifier = Modifier) {
                 value = it.toString(),
                 letterStatus = LetterStatus.DEFAULT,
                 isShaking = false,
-                onShakingEnded = {}
+                onShakingEnded = { }
             )
         }
     }

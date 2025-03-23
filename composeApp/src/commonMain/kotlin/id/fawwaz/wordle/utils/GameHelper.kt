@@ -3,6 +3,7 @@ package id.fawwaz.wordle.utils
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import id.fawwaz.wordle.utils.enums.LetterStatus
+import id.fawwaz.wordle.viewmodels.AnswersType
 import id.fawwaz.wordle.viewmodels.GameViewModel
 
 object GameHelper {
@@ -14,7 +15,7 @@ object GameHelper {
         }
     }
 
-    fun resetAnswers(): SnapshotStateList<SnapshotStateList<String>> {
+    fun resetAnswers(): AnswersType {
         return mutableStateListOf<SnapshotStateList<String>>().apply {
             repeat(GameViewModel.COL_SIZE) {
                 add(

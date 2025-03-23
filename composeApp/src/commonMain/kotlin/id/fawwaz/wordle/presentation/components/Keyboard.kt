@@ -17,23 +17,28 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import id.fawwaz.wordle.theme.Dimension
+import id.fawwaz.wordle.theme.TextSize
 import id.fawwaz.wordle.theme.WordleTheme
 import id.fawwaz.wordle.theme.correct
 import id.fawwaz.wordle.theme.exists
 import id.fawwaz.wordle.theme.incorrect
 import id.fawwaz.wordle.theme.keyboardDefault
+import id.fawwaz.wordle.theme.keyboardRed
 import id.fawwaz.wordle.utils.KeyboardHelper
+import id.fawwaz.wordle.utils.emptyString
 import id.fawwaz.wordle.utils.enums.LetterStatus
 import id.fawwaz.wordle.viewmodels.GameViewModel
+import indonesianwordle.composeapp.generated.resources.Res
+import indonesianwordle.composeapp.generated.resources.label_delete_button
+import indonesianwordle.composeapp.generated.resources.label_enter
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -49,11 +54,16 @@ fun Keyboard(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(4.dp),
+        verticalArrangement = Arrangement.spacedBy(Dimension.SIZE_4),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         KeyboardHelper.chars.forEach { values ->
-            Row(horizontalArrangement = Arrangement.spacedBy(4.dp, Alignment.CenterHorizontally)) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(
+                    Dimension.SIZE_4,
+                    Alignment.CenterHorizontally
+                )
+            ) {
                 values.forEach { char ->
                     when (char) {
                         KeyboardHelper.ENTER -> KeyboardItemEnter(onEnterClicked = onEnterClicked)
@@ -66,7 +76,7 @@ fun Keyboard(
                                     LetterStatus.CORRECT -> MaterialTheme.colorScheme.correct
                                     else -> MaterialTheme.colorScheme.keyboardDefault
                                 },
-                                label = "Background Card Animated"
+                                label = emptyString()
                             )
 
                             KeyboardItem(
@@ -89,21 +99,19 @@ fun KeyboardItem(
     backgroundCardColor: Color,
     onCharClicked: (char: String) -> Unit
 ) {
-
-
     Box(
         modifier = modifier
-            .width(30.dp)
+            .width(Dimension.SIZE_32)
             .clickable { onCharClicked(char) }
             .background(color = backgroundCardColor, shape = MaterialTheme.shapes.small)
-            .padding(vertical = 8.dp)
+            .padding(vertical = Dimension.SIZE_8)
     ) {
         Text(
             modifier = Modifier.align(Alignment.Center),
             text = char,
             style = WordleTheme.typography.labelMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+                fontSize = TextSize.SIZE_16
             )
         )
     }
@@ -115,14 +123,14 @@ fun KeyboardItemEnter(modifier: Modifier = Modifier, onEnterClicked: () -> Unit)
         modifier = modifier
             .clickable { onEnterClicked() }
             .background(Color(0xFFED8FB3), shape = MaterialTheme.shapes.small)
-            .padding(vertical = 8.dp, horizontal = 12.dp)
+            .padding(vertical = Dimension.SIZE_8, horizontal = Dimension.SIZE_12)
     ) {
         Text(
             modifier = Modifier.align(Alignment.Center),
-            text = "Enter",
+            text = stringResource(Res.string.label_enter),
             style = WordleTheme.typography.labelMedium.copy(
                 fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+                fontSize = TextSize.SIZE_16
             )
         )
     }
@@ -134,17 +142,17 @@ fun KeyboardItemDelete(modifier: Modifier = Modifier, onDeleteClicked: () -> Uni
         modifier = modifier
             .clickable { onDeleteClicked() }
             .background(
-                color = Color(0xFFED8FB3),
+                color = MaterialTheme.colorScheme.keyboardRed,
                 shape = MaterialTheme.shapes.small
             )
-            .padding(vertical = 8.dp, horizontal = 8.dp)
+            .padding(all = Dimension.SIZE_8)
     ) {
         Icon(
             modifier = Modifier
                 .align(Alignment.Center)
-                .size(24.dp),
+                .size(Dimension.SIZE_24),
             imageVector = Icons.AutoMirrored.Default.KeyboardArrowLeft,
-            contentDescription = "Delete Button"
+            contentDescription = stringResource(Res.string.label_delete_button)
         )
     }
 }
@@ -167,7 +175,7 @@ private fun KeyboardPreview() {
 @Composable
 private fun KeyboardItemPreview() {
     WordleTheme {
-        Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Row(horizontalArrangement = Arrangement.spacedBy(Dimension.SIZE_4)) {
             KeyboardItemEnter(onEnterClicked = { })
 //            KeyboardItem(
 //                char = "A",

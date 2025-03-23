@@ -20,3 +20,6 @@ val ColorScheme.exists: Color
 
 val ColorScheme.correct: Color
     get() = Color(0xFFC0EEBD)
+
+val ColorScheme.keyboardRed: Color
+    get() = Color(0xFFED8FB3)
