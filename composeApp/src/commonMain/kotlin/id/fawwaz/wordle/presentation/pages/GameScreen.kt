@@ -4,9 +4,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -14,7 +17,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import id.fawwaz.wordle.presentation.components.GameDialog
 import id.fawwaz.wordle.presentation.components.GameTitle
@@ -26,6 +28,7 @@ import id.fawwaz.wordle.utils.enums.LetterStatus
 import id.fawwaz.wordle.viewmodels.AnswersType
 import id.fawwaz.wordle.viewmodels.GameViewModel
 import indonesianwordle.composeapp.generated.resources.Res
+import indonesianwordle.composeapp.generated.resources.action_play_again
 import indonesianwordle.composeapp.generated.resources.action_try_again
 import indonesianwordle.composeapp.generated.resources.label_message_revealed
 import indonesianwordle.composeapp.generated.resources.message_failed
@@ -64,7 +67,7 @@ fun GameScreen() {
         description = stringResource(Res.string.message_meaning, state.guessWord.subMeaning),
         actionButton = {
             Button(onClick = { gameViewModel.onEvent(GameEvent.OnStartGame) }) {
-                Text(stringResource(Res.string.action_try_again))
+                Text(stringResource(Res.string.action_play_again))
             }
         }
     )
@@ -100,7 +103,8 @@ fun GameContent(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = Dimension.SIZE_24),
+            .padding(vertical = Dimension.SIZE_24)
+            .windowInsetsPadding(WindowInsets.systemBars),
         verticalArrangement = Arrangement.spacedBy(Dimension.SIZE_24)
     ) {
         GameTitle(
