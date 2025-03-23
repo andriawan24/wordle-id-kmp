@@ -9,6 +9,8 @@ object Dimension {
     val SIZE_12 = 12.dp
     val SIZE_24 = 24.dp
     val SIZE_32 = 32.dp
+    val SIZE_40 = 40.dp
+    val SIZE_48 = 48.dp
     val SIZE_60 = 60.dp
 }
 

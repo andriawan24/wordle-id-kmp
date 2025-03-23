@@ -52,7 +52,7 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
         initialValue = GameHelper.resetAnswers()
     )
 
-    fun getRandomWord() {
+    private fun getRandomWord() {
         viewModelScope.launch {
             wordleUseCase.getRandomWord()
                 .collectLatest { response ->
@@ -71,12 +71,26 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
                             )
                         }
 
-                        is Result.Success<KeywordModel> -> _state.update {
-                            it.copy(
-                                guessWord = response.data,
-                                isLoading = false,
-                                isPlaying = true
-                            )
+                        is Result.Success<KeywordModel> -> {
+                            _state.update {
+                                it.copy(
+                                    guessWord = response.data,
+                                    isLoading = false,
+                                    isPlaying = true
+                                )
+                            }
+
+                            _keyboardStatuses.update {
+                                KeyboardHelper.generateKeyboardStatuses()
+                            }
+
+                            _answers.update {
+                                GameHelper.resetAnswers()
+                            }
+
+                            _letterStatuses.update {
+                                GameHelper.resetStatuses()
+                            }
                         }
 
                         is Result.Failure -> _state.update {
@@ -100,6 +114,7 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
 
         when (event) {
             GameEvent.OnStartGame -> getRandomWord()
+
             is GameEvent.OnCharClicked -> handleCharClicked(
                 ansChars = ansChars,
                 charRowIdx = charRowIdx,
@@ -112,21 +127,31 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
                 charColIdx = charColIdx
             )
 
-            GameEvent.OnDeleteClicked -> {
-                if (!state.value.isPlaying) return
-
-                if (charRowIdx == chars.lastIndex && targetChar.isNotBlank()) {
-                    ansChars[charRowIdx] = emptyString()
-                } else {
-                    val newRowIndex = (charRowIdx - 1).coerceAtLeast(0)
-                    _state.update { it.copy(currentRowIdx = newRowIndex) }
-                    ansChars[newRowIndex] = emptyString()
-                }
-            }
+            GameEvent.OnDeleteClicked -> handleDeleteClicked(
+                charRowIdx = charRowIdx,
+                targetChar = targetChar,
+                onCharDeleted = { ansChars[it] = emptyString() }
+            )
 
             GameEvent.OnErrorEnded -> _state.update {
                 it.copy(isShaking = false)
             }
+        }
+    }
+
+    private fun handleDeleteClicked(
+        charRowIdx: Int,
+        targetChar: String,
+        onCharDeleted: (rowIdx: Int) -> Unit
+    ) {
+        if (!state.value.isPlaying) return
+
+        if (charRowIdx == ROW_SIZE - 1 && targetChar.isNotBlank()) {
+            onCharDeleted(charRowIdx)
+        } else {
+            val prevRowIdx = (charRowIdx - 1).coerceAtLeast(0)
+            _state.update { it.copy(currentRowIdx = prevRowIdx) }
+            onCharDeleted(prevRowIdx)
         }
     }
 
@@ -137,7 +162,9 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
         char: String
     ) {
         if (!state.value.isPlaying) return
+
         ansChars[charRowIdx] = if (targetChar.isBlank()) char else targetChar
+
         _state.update {
             it.copy(currentRowIdx = (charRowIdx + 1).coerceAtMost(ROW_SIZE - 1))
         }
@@ -154,9 +181,7 @@ class GameViewModel(private val wordleUseCase: WordleUseCase) : ViewModel() {
             }
 
             wordleUseCase.searchWord(currentAnswer)
-                .catch {
-                    _state.update { it.copy(isShaking = true) }
-                }
+                .catch { _state.update { it.copy(isShaking = true) } }
                 .collectLatest {
                     ansChars.forEachIndexed { rowIdx, answerCh ->
                         // Check on letter position

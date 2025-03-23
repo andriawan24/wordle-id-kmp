@@ -2,6 +2,7 @@
 <resources>
     <string name="title_won">Congratulation, you won!</string>
     <string name="action_try_again">Try Again</string>
+    <string name="action_play_again">Play Again</string>
     <string name="label_message_revealed">The word is: %1$s</string>
     <string name="label_enter">Enter</string>
     <string name="label_delete_button">Delete Button</string>

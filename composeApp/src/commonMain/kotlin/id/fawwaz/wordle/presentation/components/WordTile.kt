@@ -28,6 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import id.fawwaz.wordle.theme.Dimension
 import id.fawwaz.wordle.theme.WordleTheme
 import id.fawwaz.wordle.theme.cardBackgroundNeutral
 import id.fawwaz.wordle.theme.correct
@@ -106,8 +107,14 @@ private fun WordTilePreview() {
     WordleTheme {
         Box(modifier = Modifier.fillMaxSize()) {
             Row(
-                modifier = Modifier.padding(horizontal = 48.dp, vertical = 40.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterHorizontally)
+                modifier = Modifier.padding(
+                    horizontal = Dimension.SIZE_48,
+                    vertical = Dimension.SIZE_40
+                ),
+                horizontalArrangement = Arrangement.spacedBy(
+                    space = Dimension.SIZE_12,
+                    alignment = Alignment.CenterHorizontally
+                )
             ) {
                 WordTile(
                     modifier = Modifier.weight(1f),
