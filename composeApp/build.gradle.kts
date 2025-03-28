@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.compose.multiplatform)
     alias(libs.plugins.compose.compiler)
     alias(libs.plugins.kotlin.serialization)
+    id("io.kotzilla.kotzilla-plugin")
 }
 
 kotlin {
@@ -59,6 +60,7 @@ kotlin {
 
             // Koin
             implementation(libs.koin.compose.viewmodel)
+            implementation(libs.kotzilla.sdk.ktor3)
         }
     }
 }
@@ -90,6 +92,10 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+
+    buildFeatures {
+        buildConfig = true
     }
 }
 

@@ -6,3 +6,9 @@ plugins {
     alias(libs.plugins.kotlin.multiplatform) apply false
     alias(libs.plugins.kotlin.jvm) apply false
 }
+
+buildscript {
+    dependencies {
+        classpath(libs.kotzilla.plugin)
+    }
+}
