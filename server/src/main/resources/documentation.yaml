@@ -4,7 +4,7 @@ info:
   description: API for retrieving and managing words from a CSV source
   version: 1.0.0
 servers:
-  - url: http://192.168.0.100:8080
+  - url: http://192.168.1.8:8080
     description: Local development server
 paths:
   /words:
